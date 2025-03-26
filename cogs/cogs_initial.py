@@ -1,3 +1,4 @@
+import logging
 from discord.ext import commands
 from database.db_manager import DatabaseManager
 
@@ -6,6 +7,7 @@ class IdentityManagement(commands.Cog):
         self.bot = bot
         self.db_manager = None
         self.application_category_id = None
+        self.logger = logging.getLogger(__name__)
 
     async def setup_db(self, guild_id: int):
         # 獲取伺服器物件
@@ -28,15 +30,15 @@ class IdentityManagement(commands.Cog):
         for guild in self.bot.guilds:
             try:
                 await self.setup_db(guild_id)
-                print(f"已為伺服器 {guild_name} (ID: {guild_id}) 初始化資料庫和類別 ID")
+                self.logger.info(f"已為伺服器 {guild_name} (ID: {guild_id}) 初始化資料庫和類別 ID")
                 if self.application_category_id:
                     category = guild.get_channel(self.application_category_id)
                     if category:
-                        print(f"已載入申請類別: {category.name} (ID: {category.id})")
+                        self.logger.info(f"已載入申請類別: {category.name} (ID: {category.id})")
                     else:
-                        print(f"警告: 找不到設定的申請類別 (ID: {self.application_category_id})")
+                        self.logger.warning(f"警告: 找不到設定的申請類別 (ID: {self.application_category_id})")
             except Exception as e:
-                print(f"初始化伺服器 {guild_name} (ID: {guild_id}) 時發生錯誤: {str(e)}")
+                self.logger.error(f"初始化伺服器 {guild_name} (ID: {guild_id}) 時發生錯誤: {str(e)}")
 
 async def setup(bot):
     await bot.add_cog(IdentityManagement(bot))

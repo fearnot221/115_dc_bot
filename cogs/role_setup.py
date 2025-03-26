@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from utils.role_ui import Verfication_View
-from main import is_admin
+from bot import is_admin
 
 class Role_Setup(commands.Cog):
     def __init__(self, bot: commands.Bot):

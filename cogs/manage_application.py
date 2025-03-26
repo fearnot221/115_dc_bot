@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from main import is_admin
+from bot import is_admin
 from database.db_manager import DatabaseManager
 from discord.ui import Modal, TextInput
 

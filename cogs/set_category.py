@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from database.db_manager import DatabaseManager
-from main import is_admin
+from bot import is_admin
 
 class Set_Category(commands.Cog):
     def __init__(self, bot: commands.Bot):

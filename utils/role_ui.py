@@ -127,7 +127,7 @@ class Verfication_View(View):
         # 確認是否已有開啟的申請頻道
         channel_data = await db_manager.get_application_channel(interaction.user.id)
         
-        if channel_data:
+        if (channel_data):
             channel = interaction.guild.get_channel(channel_data["channel_id"])
             
             if channel:
@@ -327,8 +327,8 @@ class StudentApplicationModal(Modal):
             title=f"{self.emoji.get('announce1')} 表單已填寫完畢",
             description=(
                 "您的申請表單已填寫完畢，請先完成以下步驟：\n\n"
-                f"{self.emoji.get('num1')} 請務必在此頻道上傳相關證明文件\n"
-                f"{self.emoji.get('num2')} 確認資料無誤後，點擊下方「送出申請」按鈕\n\n"
+                f"{self.emoji.get('num1')} 請先在此頻道上傳相關證明文件\n"
+                f"{self.emoji.get('num2')} 確認資料無誤且已上傳證明後，點擊下方「送出申請」按鈕\n\n"
             ),
             color=discord.Color.blue()
         )
@@ -367,10 +367,10 @@ class ElderApplicationForm(View):
         self.emoji = bot.emoji
         
         submit_button = Button(
-            label="提交表單",
+            label="點擊此按鈕填寫表單",
             style=discord.ButtonStyle.primary,
-            emoji=self.emoji.get('send'),
-            custom_id=f"submit_elder_form_{user_id}" if user_id != 0 else "submit_elder_form_placeholder"
+            emoji=self.emoji.get('red_light'),
+            custom_id=f"submit_student_form_{user_id}" if user_id != 0 else "submit_elder_form_placeholder"
         )
         
         submit_button.callback = self.show_form
@@ -431,8 +431,8 @@ class ElderApplicationModal(Modal):
             title=f"{self.emoji.get('announce1')} 表單已填寫完畢",
             description=(
                 "您的申請表單已填寫完畢，請先完成以下步驟：\n\n"
-                f"{self.emoji.get('num1')} 請務必在此頻道上傳相關證明文件\n"
-                f"{self.emoji.get('num2')} 確認資料無誤後，點擊下方「送出申請」按鈕\n\n"
+                f"{self.emoji.get('num1')} 請先在此頻道上傳相關證明文件\n"
+                f"{self.emoji.get('num2')} 確認資料無誤且已上傳證明後，點擊下方「送出申請」按鈕\n\n"
             ),
             color=discord.Color.blue()
         )
@@ -609,7 +609,6 @@ class ApplicationApprovalView(View):
         return True
     
     async def show_role_selection(self, interaction: discord.Interaction):
-        
         db_manager = DatabaseManager(interaction.guild.id, interaction.guild.name)
         
         available_roles = await db_manager.get_available_roles()
@@ -623,6 +622,9 @@ class ApplicationApprovalView(View):
             await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         
+        # Ensure unique option values
+        unique_roles = {role["id"]: role for role in available_roles}.values()
+        
         select = Select(
             placeholder="選擇要給予的身份組",
             custom_id=f"role_select_{self.user_id}",
@@ -632,9 +634,9 @@ class ApplicationApprovalView(View):
                     value=str(role["id"]),
                     description=f"賦予 {role['name']} 身份組"
                 )
-                for role in available_roles
+                for role in unique_roles
             ],
-            max_values=len(available_roles)
+            max_values=len(unique_roles)
         )
         select.callback = self.role_selected_callback
         
@@ -665,6 +667,10 @@ class ApplicationApprovalView(View):
         try:
             db_manager = DatabaseManager(interaction.guild.id, interaction.guild.name)
             
+            special_chat_id = await db_manager.get_channel_id(channel_name="special_chat")
+            
+            special_chat = interaction.guild.get_channel(special_chat_id)
+            
             await db_manager.update_application_status(self.user_id, "approved")
             
             added_roles = []
@@ -675,10 +681,10 @@ class ApplicationApprovalView(View):
                 if not role:
                     failed_roles.append(f"ID: {role_id}")
                     continue
-
                 try:
                     await db_manager.save_verification_role(str(self.user_id), role.id, role.name)
                     added_roles.append(role.mention)
+                    await user.add_roles(role)
                 except Exception as e:
                     failed_roles.append(f"{role.name} ({str(e)})")
             
@@ -723,7 +729,7 @@ class ApplicationApprovalView(View):
                 
                 instruction_embed = discord.Embed(
                     title="下一步",
-                    description=f"請回到一開始的身份驗證面板點擊「驗證身份」按鈕來領取身份組",
+                    description=f"可以前往特選生聊天區閒聊囉! {self.emoji.get('arrow')} {special_chat.mention}",
                     color=discord.Color.yellow()
                 )
                 await main_channel.send(embed=instruction_embed)
@@ -1114,5 +1120,4 @@ def setup_persistent_views_role(bot):
         return True
     except Exception as e:
         print(f"設定持久化視圖時發生錯誤: {e}")
-        return False 
-    
+        return False

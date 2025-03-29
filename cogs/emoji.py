@@ -78,6 +78,7 @@ class Emoji(commands.Cog):
             try:
                 await message.add_reaction(emoji)
             except Exception as e:
+                await interaction.edit_original_response(content=str(e))
                 break
 
 async def setup(bot):

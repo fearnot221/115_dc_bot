@@ -9,6 +9,7 @@ import logging
 from dotenv import load_dotenv
 from utils.role_ui import setup_persistent_views_role
 from utils.exchange_ui import setup_persistent_views_exchange
+from utils.role_button_ui import setup_persistent_views_role_button
 
 # 設定 log
 logging.basicConfig(level=logging.INFO)
@@ -164,7 +165,7 @@ class Bot(commands.Bot):
 
     async def setup_hook(self):
         """設置機器人啟動時的初始化邏輯"""
-        setup_successful = setup_persistent_views_role(self) and setup_persistent_views_exchange(self)
+        setup_successful = setup_persistent_views_role(self) and setup_persistent_views_exchange(self) and setup_persistent_views_role_button(self)
         if not setup_successful:
             logging.warning("持久化視圖設置可能不完整")
         else:

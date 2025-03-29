@@ -94,6 +94,15 @@ class DatabaseManager:
         except (FileNotFoundError, json.JSONDecodeError):
             return None
         
+    async def get_role_id_config(self, role_name: str) -> int:
+        """取得角色 ID"""
+        try:
+            with open(self.config_json, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data.get("roles", {}).get(role_name)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return None
+        
     async def get_channel_id(self, channel_name: str) -> int:
         """取得頻道 ID"""
         try:

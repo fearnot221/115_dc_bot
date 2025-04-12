@@ -45,14 +45,14 @@ class Mcserver(View):
                 msg = discord.Embed(
                     title="✅ 伺服器已啟動",
                     description="Minecraft 伺服器目前已經在執行中。",
-                    color="green"
+                    color=discord.Color.green()
                 )
             elif status == "stopped":
                 self.start_vm(node, vmid, ticket, csrf)
                 msg = discord.Embed(
                     title="🟢 開機中...",
                     description="Minecraft 伺服器正在啟動，請稍候...",
-                    color="blue"
+                    color=discord.Color.blue()
                 )
                 await interaction.followup.send(embed=msg, ephemeral=True)
 
@@ -60,26 +60,26 @@ class Mcserver(View):
                     msg = discord.Embed(
                         title="🎉 開機完成",
                         description="伺服器已啟動，可以進入遊戲了！",
-                        color="green"
+                        color=discord.Color.green()
                     )
                 else:
                     msg = discord.Embed(
                         title="⚠️ 開機失敗",
                         description="伺服器未在預期時間內啟動。",
-                        color="red"
+                        color=discord.Color.red()
                     )
             else:
                 msg = discord.Embed(
                     title="⚠️ 狀態錯誤",
                     description=f"目前無法處理的 VM 狀態：`{status}`",
-                    color="red"
+                    color=discord.Color.red()
                 )
 
         except Exception as e:
             msg = discord.Embed(
                 title="❌ 錯誤",
                 description=f"開機失敗：{str(e)}",
-                color="red"
+                color=discord.Color.red()
             )
 
         await interaction.followup.send(embed=msg, ephemeral=True)
@@ -98,14 +98,14 @@ class Mcserver(View):
                 msg = discord.Embed(
                     title="📴 伺服器尚未開機",
                     description="目前伺服器已關閉，無需關機。",
-                    color="yellow"
+                    color=discord.Color.yellow()
                 )
             elif status == "running":
                 self.shutdown_vm(node, vmid, ticket, csrf)
                 msg = discord.Embed(
                     title="🛑 關機中...",
                     description="伺服器正在關機中，請稍候...",
-                    color="yellow"
+                    color=discord.Color.yellow()
                 )
                 await interaction.followup.send(embed=msg, ephemeral=True)
 
@@ -113,26 +113,26 @@ class Mcserver(View):
                     msg = discord.Embed(
                         title="✅ 關機完成",
                         description="伺服器已成功關閉。",
-                        color="green"
+                        color=discord.Color.green()
                     )
                 else:
                     msg = discord.Embed(
                         title="⚠️ 關機失敗",
                         description="伺服器未在預期時間內關機。",
-                        color="red"
+                        color=discord.Color.red()
                     )
             else:
                 msg = discord.Embed(
                     title="⚠️ 狀態錯誤",
                     description=f"目前無法處理的 VM 狀態：`{status}`",
-                    color="red"
+                    color=discord.Color.red()
                 )
 
         except Exception as e:
             msg = discord.Embed(
                 title="❌ 錯誤",
                 description=f"關機失敗：{str(e)}",
-                color="red"
+                color=discord.Color.red()
             )
 
         await interaction.followup.send(embed=msg, ephemeral=True)

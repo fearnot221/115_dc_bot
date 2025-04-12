@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from utils.mcserver.ui import Mcserver
+from utils.mcserver_ui import Mcserver
 from bot import is_admin
 
 class Mcserver_Setup(commands.Cog):

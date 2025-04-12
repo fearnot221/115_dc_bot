@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from utils.role_ui import setup_persistent_views_role
 from utils.exchange_ui import setup_persistent_views_exchange
 from utils.role_button_ui import setup_persistent_views_role_button
-from utils.mcserver.ui import setup_persistent_views_mcserver
+from utils.mcserver_ui import setup_persistent_views_mcserver
 
 # 設定 log
 logging.basicConfig(level=logging.INFO)

@@ -166,7 +166,7 @@ class Bot(commands.Bot):
 
     async def setup_hook(self):
         """設置機器人啟動時的初始化邏輯"""
-        setup_successful = setup_persistent_views_role(self) and setup_persistent_views_exchange(self) and setup_persistent_views_role_button(self)
+        setup_successful = setup_persistent_views_role(self) and setup_persistent_views_exchange(self) and setup_persistent_views_role_button(self) and setup_persistent_views_mcserver(self)
         if not setup_successful:
             logging.warning("持久化視圖設置可能不完整")
         else:

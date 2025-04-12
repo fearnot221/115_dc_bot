@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from utils.role_ui import Verfication_View
+from utils.mcserver.ui import Mcserver
 from bot import is_admin
 
 class Mcserver_Setup(commands.Cog):
@@ -18,7 +18,7 @@ class Mcserver_Setup(commands.Cog):
             color=discord.Color.blue()
         )
         
-        view = Verfication_View(bot=self.bot)
+        view = Mcserver(bot=self.bot)
         await interaction.response.send_message(embed=embed, view=view)
 
 async def setup(bot):

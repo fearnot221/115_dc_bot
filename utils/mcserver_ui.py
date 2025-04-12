@@ -3,13 +3,13 @@ from discord.ui import Button, View
 import requests
 import time
 import urllib3
-urllib3.disable_warnings()  # 關閉 SSL 警告
-
+urllib3.disable_warnings()
 
 class Mcserver(View):
-    def __init__(self, bot=None):
+    def __init__(self, bot=None, message=None):
         super().__init__(timeout=None)
         self.bot = bot
+        self.message = message
         self.emoji = self.bot.emoji
 
         start_button = Button(
@@ -31,111 +31,50 @@ class Mcserver(View):
         self.add_item(start_button)
         self.add_item(stop_button)
 
+    async def update_panel(self):
+        ticket, _ = self.get_proxmox_ticket()
+        status = self.get_vm_status("pve", 100, ticket)
+        status_str = {
+            "running": f"{self.emoji.get('green_check')} **運行中**",
+            "stopped": f"{self.emoji.get('red_cross')} **已關機**"
+        }.get(status, f"❓ 狀態未知：`{status}`")
+
+        embed = discord.Embed(
+            title=f"{self.emoji.get('minecraft')} 麥塊伺服器控制面板",
+            description=(
+                f"{self.emoji.get('green_fire')} **開機**\n"
+                f"{self.emoji.get('red_fire')} **關機**\n\n"
+                f"🖥️ 伺服器狀態：{status_str}"
+            ),
+            color=discord.Color.blue()
+        )
+        await self.message.edit(embed=embed, view=self)
+
     async def start_callback(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
+        ticket, csrf = self.get_proxmox_ticket()
+        status = self.get_vm_status("pve", 100, ticket)
 
-        node = 'pve'
-        vmid = 100
+        if status == "running":
+            pass  # 不做事
+        elif status == "stopped":
+            self.start_vm("pve", 100, ticket, csrf)
+            self.wait_for_vm_status("pve", 100, ticket, "running")
 
-        try:
-            ticket, csrf = self.get_proxmox_ticket()
-            status = self.get_vm_status(node, vmid, ticket)
-
-            if status == "running":
-                msg = discord.Embed(
-                    title="✅ 伺服器已啟動",
-                    description="Minecraft 伺服器目前已經在執行中。",
-                    color=discord.Color.green()
-                )
-            elif status == "stopped":
-                self.start_vm(node, vmid, ticket, csrf)
-                msg = discord.Embed(
-                    title="🟢 開機中...",
-                    description="Minecraft 伺服器正在啟動，請稍候...",
-                    color=discord.Color.blue()
-                )
-                await interaction.followup.send(embed=msg, ephemeral=True)
-
-                if self.wait_for_vm_status(node, vmid, ticket, "running"):
-                    msg = discord.Embed(
-                        title="🎉 開機完成",
-                        description="伺服器已啟動，可以進入遊戲了！",
-                        color=discord.Color.green()
-                    )
-                else:
-                    msg = discord.Embed(
-                        title="⚠️ 開機失敗",
-                        description="伺服器未在預期時間內啟動。",
-                        color=discord.Color.red()
-                    )
-            else:
-                msg = discord.Embed(
-                    title="⚠️ 狀態錯誤",
-                    description=f"目前無法處理的 VM 狀態：`{status}`",
-                    color=discord.Color.red()
-                )
-
-        except Exception as e:
-            msg = discord.Embed(
-                title="❌ 錯誤",
-                description=f"開機失敗：{str(e)}",
-                color=discord.Color.red()
-            )
-
-        await interaction.followup.send(embed=msg, ephemeral=True)
+        await self.update_panel()
 
     async def stop_callback(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
+        ticket, csrf = self.get_proxmox_ticket()
+        status = self.get_vm_status("pve", 100, ticket)
 
-        node = 'pve'
-        vmid = 100
+        if status == "stopped":
+            pass  # 不做事
+        elif status == "running":
+            self.shutdown_vm("pve", 100, ticket, csrf)
+            self.wait_for_vm_status("pve", 100, ticket, "stopped")
 
-        try:
-            ticket, csrf = self.get_proxmox_ticket()
-            status = self.get_vm_status(node, vmid, ticket)
-
-            if status == "stopped":
-                msg = discord.Embed(
-                    title="📴 伺服器尚未開機",
-                    description="目前伺服器已關閉，無需關機。",
-                    color=discord.Color.yellow()
-                )
-            elif status == "running":
-                self.shutdown_vm(node, vmid, ticket, csrf)
-                msg = discord.Embed(
-                    title="🛑 關機中...",
-                    description="伺服器正在關機中，請稍候...",
-                    color=discord.Color.yellow()
-                )
-                await interaction.followup.send(embed=msg, ephemeral=True)
-
-                if self.wait_for_vm_status(node, vmid, ticket, "stopped"):
-                    msg = discord.Embed(
-                        title="✅ 關機完成",
-                        description="伺服器已成功關閉。",
-                        color=discord.Color.green()
-                    )
-                else:
-                    msg = discord.Embed(
-                        title="⚠️ 關機失敗",
-                        description="伺服器未在預期時間內關機。",
-                        color=discord.Color.red()
-                    )
-            else:
-                msg = discord.Embed(
-                    title="⚠️ 狀態錯誤",
-                    description=f"目前無法處理的 VM 狀態：`{status}`",
-                    color=discord.Color.red()
-                )
-
-        except Exception as e:
-            msg = discord.Embed(
-                title="❌ 錯誤",
-                description=f"關機失敗：{str(e)}",
-                color=discord.Color.red()
-            )
-
-        await interaction.followup.send(embed=msg, ephemeral=True)
+        await self.update_panel()
 
     def get_proxmox_ticket(self):
         url = 'https://pve.fearnot.tw/api2/json/access/ticket'
@@ -188,7 +127,6 @@ class Mcserver(View):
                 return True
             time.sleep(2)
         return False
-
 
 def setup_persistent_views_mcserver(bot):
     try:

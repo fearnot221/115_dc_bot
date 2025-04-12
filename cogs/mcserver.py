@@ -14,13 +14,17 @@ class Mcserver_Setup(commands.Cog):
     async def setup_buttons(self, interaction: discord.Interaction):
         embed = discord.Embed(
             title=f"{self.emoji.get('minecraft')} 麥塊伺服器控制面板",
-            description="🖥️ 讀取伺服器狀態中...",
+            description=f"{self.emoji.get('green_fire')} **開機**\n\n{self.emoji.get('red_fire')} **關機**",
             color=discord.Color.blue()
         )
-        view = Mcserver(bot=self.bot, message=msg)
-        msg = await interaction.response.send_message(embed=embed, view=view)
-        await view.update_panel()  
+        
+        await interaction.response.defer()  # 先延遲回應，接著使用 followup
 
+        view = Mcserver(bot=self.bot)
+        msg = await interaction.followup.send(embed=embed, view=view, wait=True)
+
+        view.message = msg  # 設定 message 屬性給 Mcserver 使用
+        await view.update_panel()  # 初始化狀態
 
 async def setup(bot):
     await bot.add_cog(Mcserver_Setup(bot))

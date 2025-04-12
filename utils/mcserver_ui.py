@@ -42,8 +42,8 @@ class Mcserver(View):
         embed = discord.Embed(
             title=f"{self.emoji.get('minecraft')} 麥塊伺服器控制面板",
             description=(
-                f"按下 {self.emoji('green_fire')} **開機**\n"
-                f"按下 {self.emoji('red_fire')} **關機**\n\n"
+                f"按下 {self.emoji.get('green_fire')} **開機**\n"
+                f"按下 {self.emoji.get('red_fire')} **關機**\n\n"
                 f"🖥️ 伺服器狀態：{status_str}"
             ),
             color=discord.Color.blue()

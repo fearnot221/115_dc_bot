@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from utils.role_ui import setup_persistent_views_role
 from utils.exchange_ui import setup_persistent_views_exchange
 from utils.role_button_ui import setup_persistent_views_role_button
+from utils.mcserver.ui import setup_persistent_views_mcserver
 
 # 設定 log
 logging.basicConfig(level=logging.INFO)
@@ -50,29 +51,29 @@ class Bot(commands.Bot):
             command_prefix='/',
             intents=intents
         )
-        
+
         # Discord API 請求監控
         self.system_status = "normal"
         self.request_count = 0
         self.last_reset = datetime.now()
         self.rate_limit_hits = 0
         self.activity_index = 0
-        
+
         # 建立資料目錄（若不存在）
         os.makedirs('data/config', exist_ok=True)
         os.makedirs('data/database', exist_ok=True)
-        
+
         # 初始化 JSON 資料
         self.config_data = {}  # 用於存儲所有伺服器的配置
         self.verification_data = {}  # 用於存儲所有伺服器的驗證資料
         self.emoji_data = {}  # 用於存儲所有表情符號資料
-        
+
         # 簡化的 emoji 字典，可直接通過 emoji 名稱取得格式
         self.emoji = {}  # 用於直接通過名稱取得 emoji 格式
-        
+
         # 載入 JSON 資料
         self.load_all_json_data()
-        
+
         # 載入所有 cogs 的清單
         self.loadcogs = []
         for filename in os.listdir('./cogs'):
@@ -91,7 +92,7 @@ class Bot(commands.Bot):
                         self.config_data[guild_id] = json.load(f)
                 except Exception as e:
                     logging.error(f"載入 {config_file} 時發生錯誤: {str(e)}")
-                    
+
             # 載入 verification
             verification_files = [f for f in os.listdir('data/config') if f.startswith('verification_') and not f.endswith('example.json')]
             for verification_file in verification_files:
@@ -101,7 +102,7 @@ class Bot(commands.Bot):
                         self.verification_data[guild_id] = json.load(f)
                 except Exception as e:
                     logging.error(f"載入 {verification_file} 時發生錯誤: {str(e)}")
-                    
+
             # 載入 emoji
             emoji_file = 'data/config/emoji.json'
             if os.path.exists(emoji_file):
@@ -109,7 +110,7 @@ class Bot(commands.Bot):
                     with open(emoji_file, 'r', encoding='utf-8') as f:
                         emoji_data = json.load(f)
                         self.emoji_data = emoji_data
-                        
+
                         if 'emojis' in emoji_data:
                             for emoji_name, emoji_info in emoji_data['emojis'].items():
                                 if 'format' in emoji_info:
@@ -120,13 +121,13 @@ class Bot(commands.Bot):
                 # 如果全局表情文件不存在，創建一個空的
                 with open(emoji_file, 'w', encoding='utf-8') as f:
                     json.dump({"emojis": {}}, f, ensure_ascii=False, indent=4)
-                    
+
             logging.info("JSON 資料載入完成")
         except Exception as e:
             logging.error(f"載入 JSON 資料時發生錯誤: {str(e)}")
-    
+
     def get_emoji(self, name):
-        return self.emoji.get(name, f":{name}:") 
+        return self.emoji.get(name, f":{name}:")
 
     @tasks.loop(seconds=30)
     async def status_monitor(self):
@@ -170,22 +171,22 @@ class Bot(commands.Bot):
             logging.warning("持久化視圖設置可能不完整")
         else:
             logging.info("持久化視圖設置完成")
-            
+
         for ext in self.loadcogs:
             try:
                 await self.load_extension(ext)
             except Exception as e:
                 logging.error(f"載入 {ext} 時發生錯誤: {str(e)}")
-        
+
         try:
             synced = await self.tree.sync()
             logging.info(f'已同步 {len(synced)} 個指令')
         except Exception as e:
             logging.error(f'指令同步失敗: {e}')
-            
+
         self.status_monitor.start()
         self.setup_bot.start()
-        
+
         @self.tree.error
         async def on_app_command_error(interaction: discord.Interaction, error: discord.app_commands.AppCommandError):
             embed = discord.Embed(title="錯誤", color=discord.Color.red())

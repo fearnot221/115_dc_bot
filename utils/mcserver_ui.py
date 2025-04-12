@@ -42,8 +42,8 @@ class Mcserver(View):
         embed = discord.Embed(
             title=f"{self.emoji.get('minecraft')} 麥塊伺服器控制面板",
             description=(
-                f"{self.emoji.get('green_fire')} **開機**\n"
-                f"{self.emoji.get('red_fire')} **關機**\n\n"
+                f"🟢 **開機**\n"
+                f"🔴 **關機**\n\n"
                 f"🖥️ 伺服器狀態：{status_str}"
             ),
             color=discord.Color.blue()
@@ -52,27 +52,35 @@ class Mcserver(View):
 
     async def start_callback(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
+
+        msg = await interaction.followup.send("🟢 正在開機中...", ephemeral=True)
+
         ticket, csrf = self.get_proxmox_ticket()
         status = self.get_vm_status("pve", 100, ticket)
 
         if status == "running":
-            pass  # 不做事
+            await msg.edit(content="✅ 伺服器已經在運行中！")
         elif status == "stopped":
             self.start_vm("pve", 100, ticket, csrf)
             self.wait_for_vm_status("pve", 100, ticket, "running")
+            await msg.edit(content="✅ 開機完成！")
 
         await self.update_panel()
 
     async def stop_callback(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
+
+        msg = await interaction.followup.send("🔴 正在關機中...", ephemeral=True)
+
         ticket, csrf = self.get_proxmox_ticket()
         status = self.get_vm_status("pve", 100, ticket)
 
         if status == "stopped":
-            pass  # 不做事
+            await msg.edit(content="✅ 伺服器已經關機了！")
         elif status == "running":
             self.shutdown_vm("pve", 100, ticket, csrf)
             self.wait_for_vm_status("pve", 100, ticket, "stopped")
+            await msg.edit(content="✅ 關機完成！")
 
         await self.update_panel()
 

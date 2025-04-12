@@ -17,7 +17,7 @@ class Mcserver_Setup(commands.Cog):
             description="🖥️ 讀取伺服器狀態中...",
             color=discord.Color.blue()
         )
-        msg = await interaction.response.send_message(embed=embed, wait=True)
+        msg = await interaction.response.send_message(embed=embed)
         view = Mcserver(bot=self.bot, message=msg)
         await view.update_panel()  
 

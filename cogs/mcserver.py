@@ -9,7 +9,7 @@ class Mcserver_Setup(commands.Cog):
         self.bot = bot
         self.emoji = self.bot.emoji
     
-    @app_commands.command(name="role_setup", description="建立麥塊伺服器控制面板")
+    @app_commands.command(name="mcserver_setup", description="建立麥塊伺服器控制面板")
     @is_admin()
     async def setup_buttons(self, interaction: discord.Interaction):
         embed = discord.Embed(

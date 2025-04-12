@@ -35,15 +35,15 @@ class Mcserver(View):
         ticket, _ = self.get_proxmox_ticket()
         status = self.get_vm_status("pve", 100, ticket)
         status_str = {
-            "running": f"{self.emoji.get('green_check')} **運行中**",
-            "stopped": f"{self.emoji.get('red_cross')} **已關機**"
+            "running": f"🟢 **運行中**",
+            "stopped": f"🔴 **已關機**"
         }.get(status, f"❓ 狀態未知：`{status}`")
 
         embed = discord.Embed(
             title=f"{self.emoji.get('minecraft')} 麥塊伺服器控制面板",
             description=(
-                f"🟢 **開機**\n"
-                f"🔴 **關機**\n\n"
+                f"按下 {self.emoji('green_fire')} **開機**\n"
+                f"按下 {self.emoji('red_fire')} **關機**\n\n"
                 f"🖥️ 伺服器狀態：{status_str}"
             ),
             color=discord.Color.blue()

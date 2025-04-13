@@ -111,6 +111,15 @@ class DatabaseManager:
                 return data.get("channels", {}).get(channel_name)
         except (FileNotFoundError, json.JSONDecodeError):
             return None
+        
+    async def get_mcserver_message(self) -> int:
+        """取得麥塊伺服器控制面板的訊息"""
+        try:
+            with open(self.config_json, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return data.get("mcserver_message")
+        except (FileNotFoundError, json.JSONDecodeError):
+            return None
     
     async def get_verification_role(self, user_id: str) -> int:
         """取得使用者的驗證角色"""

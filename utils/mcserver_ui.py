@@ -2,6 +2,7 @@ import discord
 from discord.ui import Button, View
 import requests
 import time
+from database.db_manager import DatabaseManager
 import urllib3
 urllib3.disable_warnings()
 
@@ -11,7 +12,7 @@ class Mcserver(View):
         self.bot = bot
         self.message = message
         self.emoji = self.bot.emoji
-
+        
         start_button = Button(
             label="開機",
             style=discord.ButtonStyle.success,
@@ -31,7 +32,15 @@ class Mcserver(View):
         self.add_item(start_button)
         self.add_item(stop_button)
 
-    async def update_panel(self):
+    async def update_panel(self, interaction=discord.Interaction):
+        
+        if self.message is None:
+            db = DatabaseManager(interaction.guild_id, interaction.guild.name)
+            
+            message_id = await db.get_mcserver_message()
+            
+            self.message = interaction.channel.fetch_message(message_id)
+        
         ticket, _ = self.get_proxmox_ticket()
         status = self.get_vm_status("pve", 100, ticket)
         status_str = {

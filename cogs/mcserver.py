@@ -45,7 +45,7 @@ class Mcserver_Setup(commands.Cog):
         
         message_id = await db.get_mcserver_message()
         
-        message = interaction.channel.fetch_message(message_id)
+        message = await interaction.channel.fetch_message(message_id)
         
         view = Mcserver(bot=self.bot, message=message)
         

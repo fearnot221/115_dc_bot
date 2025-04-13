@@ -21,11 +21,19 @@ class Mcserver_Setup(commands.Cog):
         )
         
         await interaction.response.defer()  # 先延遲回應，接著使用 followup
-
+        
         view = Mcserver(bot=self.bot)
+        
+        db = DatabaseManager(interaction.guild_id, interaction.guild.name)
+        
+        message_id = await db.get_mcserver_message()
+        
+        message = interaction.channel.fetch_message(message_id)
+        
         msg = await interaction.followup.send(embed=embed, view=view, wait=True)
 
-        view.message = msg  # 設定 message 屬性給 Mcserver 使用
+        view.message = message if msg is None else msg
+
         await view.update_panel()  # 初始化狀態
 
     @app_commands.command(name="mcserver_status", description="查詢並更新麥塊伺服器控制面板")
@@ -33,7 +41,7 @@ class Mcserver_Setup(commands.Cog):
     async def status_panel(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
 
-        db = DatabaseManager(interaction.guild_id, interaction.guild.name, )
+        db = DatabaseManager(interaction.guild_id, interaction.guild.name)
         
         message_id = await db.get_mcserver_message()
         

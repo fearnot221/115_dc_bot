@@ -62,7 +62,7 @@ class Mcserver(View):
     async def start_callback(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
 
-        channel = self.bot.get_channel('1358292717544931399')
+        channel = self.bot.get_channel(1358292717544931399)
         
         msg = await interaction.followup.send("🟢 正在開機中...", ephemeral=True)
 

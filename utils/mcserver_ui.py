@@ -75,7 +75,7 @@ class Mcserver(View):
             self.start_vm("pve", 100, ticket, csrf)
             self.wait_for_vm_status("pve", 100, ticket, "running")
             await msg.edit(content="✅ 開機完成！")
-            await channel.send(r"{interaction.user.mention} 按下了開機鍵！")
+            await channel.send(f"{interaction.user.mention} 按下了開機鍵！")
 
         await self.update_panel()
 

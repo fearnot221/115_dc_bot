@@ -62,6 +62,8 @@ class Mcserver(View):
     async def start_callback(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
 
+        channel = await interaction.channel_id('1358292717544931399')
+        
         msg = await interaction.followup.send("🟢 正在開機中...", ephemeral=True)
 
         ticket, csrf = self.get_proxmox_ticket()
@@ -73,6 +75,7 @@ class Mcserver(View):
             self.start_vm("pve", 100, ticket, csrf)
             self.wait_for_vm_status("pve", 100, ticket, "running")
             await msg.edit(content="✅ 開機完成！")
+            await channel.send(r"{interaction.user.mention} 按下了開機鍵！")
 
         await self.update_panel()
 

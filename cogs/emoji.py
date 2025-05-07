@@ -74,6 +74,8 @@ class Emoji(commands.Cog):
 
         await interaction.edit_original_response(content='<:angrymention:1354741704846213195>')
 
+        await message.reply(content=f'{interaction.user.mention} 加了一大堆 <:angrymention:1354741704846213195>', mention_author=False)
+
         for emoji in emojis:
             try:
                 await message.add_reaction(emoji)

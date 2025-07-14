@@ -542,8 +542,8 @@ class SubmitApplicationView(View):
             config = DatabaseManager(interaction.guild.id, interaction.guild.name)
             with open(config.config_json, "r", encoding="utf-8") as file:
                 admin_id = json.load(file)["roles"]["admin"]
-            admin_role = interaction.guild.get_role(admin_id)
-            mention_text = admin_role.mention if admin_role else "**(無法找到管理員身分組)**"
+            # admin_role = interaction.guild.get_role(admin_id)
+            # mention_text = admin_role.mention if admin_role else "**(無法找到管理員身分組)**"
         except:
             print("無法找到管理員身分組")
             mention_text = "@admin"

@@ -546,7 +546,7 @@ class SubmitApplicationView(View):
             # mention_text = admin_role.mention if admin_role else "**(無法找到管理員身分組)**"
         except:
             print("無法找到管理員身分組")
-            # mention_text = "@admin"
+            mention_text = "@Fearnot"
         
         admin_embed = discord.Embed(
             title=f"{self.emoji.get('frog1')} 申請審核面板",

@@ -257,7 +257,7 @@ class ApplicationApprovalView(View):
             
             instruction_embed = discord.Embed(
                 title="下一步",
-                description=f"可以前往頻道交換備審了 {self.emoji.get('arrow')} {channel.mention}",
+                description=f"記得到 {self.emoji.get('arrow')} {channel.mention}開啟貼文並上傳你的備審資料喔！",
                 color=discord.Color.yellow()
             )
             await main_channel.send(embed=instruction_embed)

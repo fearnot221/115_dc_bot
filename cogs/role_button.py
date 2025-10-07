@@ -34,7 +34,7 @@ class Role_Button(commands.Cog):
             embed_description = f"我們支持多元身份認同\n\n歡迎 {self.emoji.get('crown1')}"
             view = Crown(bot=self.bot)
         elif category == "cat":
-            embed_title = f"{self.emoji.get('cat0')} 多元身份認同"
+            embed_title = f"{self.emoji.get('cat0')} 加入貓貓教"
             embed_description = f"我們歡迎任何物種入教\n\n歡迎 {self.emoji.get('cat4')}"
             view = Cat(bot=self.bot)
         else:

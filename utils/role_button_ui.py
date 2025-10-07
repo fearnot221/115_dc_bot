@@ -156,7 +156,7 @@ class Cat(View):
         self.emoji = self.bot.emoji
         
         button = Button(
-            label="貓貓教", 
+            label="一鍵入教", 
             style=discord.ButtonStyle.primary,
             emoji=self.emoji.get('cat1-2'),
             custom_id="role_button_cat"

@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from utils.role_button_ui import Gay, Crown
+from utils.role_button_ui import Gay, Crown, Cat
 from bot import is_admin
 import asyncio
 import colorsys
@@ -15,6 +15,7 @@ class Role_Button(commands.Cog):
     role_choices = [
         app_commands.Choice(name="Gay", value="gay"),
         app_commands.Choice(name="Crown", value="crown"),
+        app_commands.Choice(name="Cat", value="cat")
     ]
     
     @app_commands.command(name="role_button", description="建立領取身份組按鈕")
@@ -35,7 +36,7 @@ class Role_Button(commands.Cog):
         elif category == "cat":
             embed_title = f"{self.emoji.get('cat0')} 多元身份認同"
             embed_description = f"我們歡迎任何物種入教\n\n歡迎 {self.emoji.get('cat4')}"
-            view = Crown(bot=self.bot)
+            view = Cat(bot=self.bot)
         else:
             await interaction.response.send_message("無效的選項！", ephemeral=True)
             return

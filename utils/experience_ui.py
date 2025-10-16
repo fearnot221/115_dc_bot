@@ -933,22 +933,6 @@ class ReopenView(View):
         self.bot = bot
         self.emoji = bot.emoji
         self.db_manager = None
-    
-        async def ensure_db_manager(self, interaction: discord.Interaction):
-            """Ensure that db_manager is initialized for the current guild"""
-            guild_id = interaction.guild.id
-            guild_name = interaction.guild.name
-            
-            # If db_manager is None or for a different guild, initialize it
-            if (self.db_manager is None or 
-                self.db_manager.guild_id != guild_id):
-                self.db_manager = DatabaseManager(guild_id, guild_name)
-                await self.db_manager.init_db()
-                
-                # Also update the application category ID
-                self.application_category_id = await self.db_manager.get_application_category()
-                
-            return self.db_manager
         
         reopen_button = Button(
             label="重新審核", 
@@ -968,6 +952,22 @@ class ReopenView(View):
         
         self.add_item(reopen_button)
         self.add_item(delete_button)
+    
+    async def ensure_db_manager(self, interaction: discord.Interaction):
+            """Ensure that db_manager is initialized for the current guild"""
+            guild_id = interaction.guild.id
+            guild_name = interaction.guild.name
+            
+            # If db_manager is None or for a different guild, initialize it
+            if (self.db_manager is None or 
+                self.db_manager.guild_id != guild_id):
+                self.db_manager = DatabaseManager(guild_id, guild_name)
+                await self.db_manager.init_db()
+                
+                # Also update the application category ID
+                self.application_category_id = await self.db_manager.get_application_category()
+                
+            return self.db_manager
     
     async def reopen_callback(self, interaction: discord.Interaction):
         if not interaction.user.guild_permissions.administrator:

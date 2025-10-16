@@ -163,9 +163,9 @@ class SubmitApplicationView(View):
         config = DatabaseManager(interaction.guild.id, interaction.guild.name)
         with open(config.config_json, "r", encoding="utf-8") as file:
             admin_id = json.load(file)["roles"]["admin"]
-        # admin_role = interaction.guild.get_role(1394313725447766186)
-        # mention_text = admin_role.mention
-        mention_text = "@admin"
+        admin_role = interaction.guild.get_role(1394313725447766186)
+        mention_text = admin_role.mention
+        # mention_text = "@admin"
     
         admin_embed = discord.Embed(
             title=f"{self.emoji.get('frog1')} 申請審核面板",
@@ -241,7 +241,7 @@ class ApplicationApprovalView(View):
                 color=discord.Color.green()
             )
         
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.response.send_message(embed=embed)
         
         main_channel = interaction.channel.parent
         if main_channel:
@@ -465,6 +465,24 @@ class ReopenView(View):
         self.user_id = user_id
         self.bot = bot
         self.emoji = bot.emoji
+        self.db_manager = None
+    
+        async def ensure_db_manager(self, interaction: discord.Interaction):
+            """Ensure that db_manager is initialized for the current guild"""
+            guild_id = interaction.guild.id
+            guild_name = interaction.guild.name
+            
+            # If db_manager is None or for a different guild, initialize it
+            if (self.db_manager is None or 
+                self.db_manager.guild_id != guild_id):
+                self.db_manager = DatabaseManager(guild_id, guild_name)
+                await self.db_manager.init_db()
+                
+                # Also update the application category ID
+                self.application_category_id = await self.db_manager.get_application_category()
+                
+            return self.db_manager
+
         
         reopen_button = Button(
             label="重新審核", 
@@ -517,7 +535,7 @@ class ReopenView(View):
             selection_embed = discord.Embed(
                 title="交換備審申請",
                 description=(
-                    f"{interaction.user.mention}，請先完成以下步驟：\n\n"
+                    f"{applicant.mention}，請先完成以下步驟：\n\n"
                     f"{self.emoji.get('num1')} 請務必在此頻道上傳備審資料\n"
                     f"{self.emoji.get('num2')} 確認上傳成功後，點擊下方「送出申請」按鈕\n\n"
                 ),
@@ -527,6 +545,9 @@ class ReopenView(View):
             await interaction.channel.send(embed=selection_embed, view=SubmitApplicationView(self.user_id, self.bot))
     
     async def delete_callback(self, interaction: discord.Interaction):
+        
+        await self.ensure_db_manager(interaction)
+        
         if not interaction.user.guild_permissions.administrator:
             embed = discord.Embed(
                 title="權限不足",
@@ -541,6 +562,8 @@ class ReopenView(View):
             color=discord.Color.red()
         )
         await interaction.response.send_message(embed=embed)
+        
+        await self.db_manager.remove_bot_created_channel(interaction.channel.id)
         
         await asyncio.sleep(3)
 

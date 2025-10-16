@@ -163,7 +163,7 @@ class SubmitApplicationView(View):
         config = DatabaseManager(interaction.guild.id, interaction.guild.name)
         with open(config.config_json, "r", encoding="utf-8") as file:
             admin_id = json.load(file)["roles"]["admin"]
-        admin_role = interaction.guild.get_role(1394313725447766186)
+        admin_role = interaction.guild.get_role(admin_id)
         mention_text = admin_role.mention
         # mention_text = "@admin"
     
